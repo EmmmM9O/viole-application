@@ -1,0 +1,12 @@
+CompileFlags:
+  Add: [-std=c++2b]
+  Compiler: clang
+Diagnostics:
+  UnusedIncludes: Strict
+checks:
+    - '*-clang-tidy'
+InlayHints:
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
