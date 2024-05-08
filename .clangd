@@ -1,8 +1,13 @@
 CompileFlags:
-  Add: [-std=c++2b]
-  Compiler: clang
+  Add: [-std=c++2b,-Wall,-xc++,-I/root/viole-application/src,-I/root/viole-application/incldue,-stdlib=libc++,-fmodule-mapper=/root/viole-application/build/core/mapper.txt]
+  Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict
+  ClangTidy:
+    Add: modernize*
+    Remove: modernize-use-trailing-return-type
+    CheckOptions:
+      readability-identifier-naming.VariableCase: CamelCase
 checks:
     - '*-clang-tidy'
 InlayHints:
@@ -10,3 +15,7 @@ InlayHints:
   Enabled: Yes
   ParameterNames: Yes
   DeducedTypes: Yes
+  BlockEnd: No
+If:
+  PathMatch: ./include/**.h
+  PathMatch: ./include/**.hpp

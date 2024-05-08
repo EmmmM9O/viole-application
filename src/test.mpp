@@ -1,0 +1,7 @@
+
+export module test;
+import <string>;
+export void test() {
+
+}
+

@@ -14,6 +14,11 @@ function traverseDir(path)
     os.exec("clang-format --style='file:"..os.getenv("PWD").."/.clang-format' -i " .. file)
     print("format ", file)
     end
+  local files4 = os.files(path .. "/**.mpp")
+    for _,file in ipairs(files4) do
+    os.exec("clang-format --style='file:"..os.getenv("PWD").."/.clang-format' -i " .. file)
+    print("format ", file)
+    end
 end
 
 function main(...)
