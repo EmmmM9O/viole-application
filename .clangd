@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-std=c++2b,-Wall,-xc++,-I/root/viole-application/src,-I/root/viole-application/incldue,-stdlib=libc++,-fmodule-mapper=/root/viole-application/build/core/mapper.txt]
+  Add: [-std=c++2b,-Wall,-xc++,-I/root/viole-application/src,-I/root/viole-application/incldue,-stdlib=libc++,-fmodules]
   Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict
