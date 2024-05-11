@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-std=c++2b,-Wall,-xc++,-I/root/viole-application/src,-I/root/viole-application/incldue,-stdlib=libc++,-fmodules]
+  Add: [-std=c++2b,-Wall,-O3,-xc++-module,-I/root/viole-application/src,-I/root/viole-application/third_party/stdmodules/,-stdlib=libc++]
   Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict

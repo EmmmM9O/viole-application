@@ -10,13 +10,13 @@ set_menu({
 	description = "Format source code",
 })
 task_end()
-target("core")
+target("viole")
 	set_kind("static")
-	add_cxflags("-Wall")
+	add_cxflags("-Wall","-stdlib=libc++")
+	add_ldflags("-stdlib=libc++")
+
 	add_includedirs("$(projectdir)")
-	add_cxflags("-stdlib=libc++","-fmodules")
-	add_ldflags("-stdlib=libc++","-fmodules")
-	set_toolset("cxx", "clang")
+	set_toolset("cxx", "clang++")
 	set_toolset("ld", "clang++")
 	add_files("src/**.ixx", { install = true })
 	add_files("src/**.cpp")

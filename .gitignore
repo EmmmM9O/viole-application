@@ -30,7 +30,8 @@
 *.exe
 *.out
 *.app
-
+*.pcm
+*.lib
 build/
 .vscode/
 .xmake/
