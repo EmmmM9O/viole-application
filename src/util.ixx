@@ -1,5 +1,7 @@
 module;
 #include <any>
+#include <iostream>
+#include <memory>
 #include <type_traits>
 #include <typeinfo>
 export module viole_util;
@@ -37,12 +39,10 @@ public:
   template <typename T> [[nodiscard]] bool same_as() const {
     return typeid(T).hash_code() == type().hash_code();
   }
+  void swap(any_point &other);
   bool same_as(const std::any &data);
-  template <typename T> void swap(T *point) {
-    if (same_as<T>())
-      _data->set_void_ptr(point);
-    else
-      throw bad_any_point();
+  template <typename T> void emplace(T *point) {
+    _data.reset(new type_impl<T>(point));
   }
   void reset() noexcept;
   void set_any(std::any data);
@@ -52,12 +52,23 @@ public:
     else
       throw bad_any_point();
   }
+  any_point &operator=(const any_point &other);
+  any_point(any_point &&other) noexcept;
+  any_point(const any_point &other);
+  any_point &operator=(any_point &&other) noexcept;
+
+  template <typename T> any_point &operator=(T data) {
+    // std::cout<<typeid(T).name()<<std::endl;
+    set(data);
+    return *this;
+  }
   any_point() = default;
   ~any_point() = default;
-  template <typename T> any_point(T *point) : _data(new type_impl<T>(point)) {}
+  template <typename T>
+  any_point(T *point) : _data(std::make_shared<type_impl<T>>(point)) {}
 
 private:
-  std::unique_ptr<type_internal> _data;
+  std::shared_ptr<type_internal> _data;
 };
 
 } // namespace viole

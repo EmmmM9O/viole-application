@@ -1,6 +1,7 @@
 module;
 #include <any>
 #include <typeinfo>
+#include <utility>
 module viole_util;
 const char *viole::bad_any_point::what() const noexcept {
   return "bad_any_ref exception";
@@ -22,3 +23,28 @@ void viole::any_point::set_any(std::any data) {
   else
     throw bad_any_point();
 }
+viole::any_point &viole::any_point::operator=(const any_point &other) {
+  if (type() != other.type()) {
+    throw bad_any_point();
+  }
+  if (other._data) {
+    _data = other._data;
+  }
+  return *this;
+}
+viole::any_point::any_point(const any_point &other) {
+
+  if (other._data) {
+    _data = other._data;
+  }
+}
+viole::any_point::any_point(any_point &&other) noexcept
+    : _data(std::move(other._data)) {}
+viole::any_point &viole::any_point::operator=(any_point &&other) noexcept {
+  if (type() != other.type()) {
+    throw bad_any_point();
+  }
+  _data.swap(other._data);
+  return *this;
+}
+void viole::any_point::swap(any_point &other) { _data.swap(other._data); }
