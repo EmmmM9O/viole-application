@@ -1,0 +1,8 @@
+target("test")
+  set_kind("binary")
+  add_deps("viole")
+	add_cxflags("-Wall","-stdlib=libc++","-fprebuilt-module-path=build/.gens/stdmodules/linux/arm64-v8a/release/rules/modules/cache/b0058710/","-fprebuilt-module-path=build/.gens/viole/linux/arm64-v8a/release/rules/modules/cache/fa597cf7/")
+	add_ldflags("-stdlib=libc++")
+	add_includedirs("$(projectdir)")
+	add_files("**.cpp")
+	set_policy("build.c++.modules", true)

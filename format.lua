@@ -9,12 +9,12 @@ function traverseDir(path)
     os.exec("clang-format --style='file:"..os.getenv("PWD").."/.clang-format' -i " .. file)
     print("format ", file)
     end
-  local files3 = os.files(path .. "/**.hpp")
+  local files3 = os.files(path .. "/**.cppm")
     for _,file in ipairs(files3) do
     os.exec("clang-format --style='file:"..os.getenv("PWD").."/.clang-format' -i " .. file)
     print("format ", file)
     end
-  local files4 = os.files(path .. "/**.mpp")
+  local files4 = os.files(path .. "/**.ixx")
     for _,file in ipairs(files4) do
     os.exec("clang-format --style='file:"..os.getenv("PWD").."/.clang-format' -i " .. file)
     print("format ", file)
@@ -24,8 +24,8 @@ end
 function main(...)
 	print("start format")
 	local path = os.getenv("PWD")
-	traverseDir(path.."/include")
 	traverseDir(path.."/src")
 	traverseDir(path.."/example")
+	traverseDir(path.."/third_party/stdmodules/")
 	print("end format")
 end
