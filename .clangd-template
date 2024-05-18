@@ -1,0 +1,19 @@
+CompileFlags:
+  Add: [-std=c++26,-Wall,-O3,-xc++,-I/root/viole-application/src,-I/root/viole-application/include/,-stdlib=libc++]
+  Compiler: clang++
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Add: modernize*
+    Remove: modernize-use-trailing-return-type
+    CheckOptions:
+      readability-identifier-naming.VariableCase: CamelCase
+checks:
+    - '*-clang-tidy'
+InlayHints:
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  BlockEnd: No
+
