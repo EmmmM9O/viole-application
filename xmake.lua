@@ -11,15 +11,13 @@ set_menu({
 })
 task_end()
 includes("third_party/**.lua")
-set_languages("c++2b")
+set_languages("c++26")
 
 target("viole")
 	set_kind("static")
-	add_cxflags("-Wall","-stdlib=libc++","-fprebuilt-module-path=build/.gens/viole/linux/arm64-v8a/release/rules/modules/cache/fa597cf7/")
+	add_cxflags("-Wall","-stdlib=libc++")
 	add_ldflags("-stdlib=libc++")
-	add_includedirs("$(projectdir)")
-	add_files("src/**.ixx", { install = true })
+	add_includedirs("$(projectdir)/include/")
 	add_files("src/**.cpp")
-	set_policy("build.c++.modules", true)
 
 includes("example/**.lua")

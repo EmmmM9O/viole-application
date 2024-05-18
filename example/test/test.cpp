@@ -16,7 +16,7 @@ int main() {
   p.set(11);
   std::cout << "a:" << a << std::endl;
   std::cout << "w:" << w << std::endl;
-  p=1145;
+  p = 1145;
   std::cout << "a:" << a << std::endl;
   std::cout << "w:" << w << std::endl;
   viole::any_point p2(&a);
