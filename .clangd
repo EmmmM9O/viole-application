@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-std=c++2b,-Wall,-O3,-xc++-module,-I/home/novarc/viole-application/src,-I/home/novarc/viole-application/third_party/stdmodules/src,-stdlib=libc++,-fprebuilt-module-path=build/.gens/viole/linux/arm64-v8a/release/rules/modules/cache/fa597cf7/]
+  Add: [-std=c++26,-Wall,-O3,-xc++,-I/home/novarc/viole-application/src,-I/home/novarc/viole-application/include/,-stdlib=libc++]
   Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict

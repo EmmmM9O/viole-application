@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-std=c++26,-Wall,-O3,-xc++,-I/root/viole-application/src,-I/root/viole-application/include/,-stdlib=libc++]
+  Add: [-std=c++26,-Wall,-O3,-xc++,-I@PROJECT/src,-I@PROJECT/include/,-stdlib=libc++]
   Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict
