@@ -37,7 +37,7 @@ public:
 };
 
 /**
- * @class basic_inut
+ * @class basic_input
  * @brief [TODO:description]
  *
  */
@@ -70,16 +70,16 @@ public:
   /**
    * @brief return the string
    */
-  [[nodiscard]] virtual std::string to_string() const noexcept = 0;
+  [[nodiscard]] virtual std::string to_string() const noexcept;
   /**
    * @brief [TODO:description]
    *
    * @param output
    */
-  virtual void to_string(basic_output &output) const noexcept = 0;
+  virtual void to_string(basic_output &output) const noexcept;
   /**
    * @brief [TODO:description]
    */
-  [[nodiscard]] virtual const std::type_info &get_type() const noexcept = 0;
+  [[nodiscard]] virtual const std::type_info &get_type() const noexcept;
 };
 } // namespace viole
