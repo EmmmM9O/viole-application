@@ -1,4 +1,4 @@
-Checks: '-*,bugprone-*'
+Checks: '-*,bugprone-*,modernize-*'
 CheckOptions:
       - key: bugprone-argument-comment.StrictMode
         value: 1

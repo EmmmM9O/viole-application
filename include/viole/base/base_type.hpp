@@ -21,19 +21,19 @@ public:
    *
    * @param str [TODO:parameter]
    */
-  virtual void write_string(const std::string &str) = 0;
+  virtual auto write_string(const std::string &str) -> void = 0;
   /**
    * @brief [TODO:description]
    *
    * @param value [TODO:parameter]
    */
-  virtual void write_int(int value) = 0;
+  virtual auto write_int(int value) -> void = 0;
   /**
    * @brief [TODO:description]
    *
    * @param value [TODO:parameter]
    */
-  virtual void write_char(char value) = 0;
+  virtual auto write_char(char value) -> void = 0;
 };
 
 /**
@@ -46,40 +46,41 @@ public:
   /**
    * @brief [TODO:description]
    */
-  virtual std::string read_string() = 0;
+  virtual auto read_string() -> std::string = 0;
   /**
    * @brief [TODO:description]
    *
    * @return [TODO:return]
    */
-  virtual int read_int() = 0;
+  virtual auto read_int() -> int = 0;
   /**
    * @brief [TODO:description]
    *
    * @return [TODO:return]
    */
-  virtual char read_char() = 0;
+  virtual auto read_char() -> char = 0;
 };
 /**
- * @class base_object
+ * @class basic_object
  * @brief [TODO:description]
  *
  */
-class base_object {
+class basic_object {
 public:
   /**
    * @brief return the string
    */
-  [[nodiscard]] virtual std::string to_string() const noexcept;
+  [[nodiscard]] virtual auto to_string() const noexcept -> std::string;
   /**
    * @brief [TODO:description]
    *
    * @param output
    */
-  virtual void to_string(basic_output &output) const noexcept;
+  virtual auto to_string(basic_output &output) const noexcept -> void;
   /**
    * @brief [TODO:description]
    */
-  [[nodiscard]] virtual const std::type_info &get_type() const noexcept;
+  [[nodiscard]] virtual auto
+  get_type() const noexcept -> const std::type_info &;
 };
 } // namespace viole

@@ -39,3 +39,5 @@ temp/
 .clangd
 doc/
 .clangd
+html
+latex
