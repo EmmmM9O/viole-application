@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include <string>
+#include "viole/stl.hpp"
 #include <typeinfo>
 namespace viole {
 /**
@@ -21,7 +21,7 @@ public:
    *
    * @param str [TODO:parameter]
    */
-  virtual auto write_string(const std::string &str) -> void = 0;
+  virtual auto write_string(const viole::string &str) -> void = 0;
   /**
    * @brief [TODO:description]
    *
@@ -46,7 +46,7 @@ public:
   /**
    * @brief [TODO:description]
    */
-  virtual auto read_string() -> std::string = 0;
+  virtual auto read_string() -> viole::string = 0;
   /**
    * @brief [TODO:description]
    *
@@ -70,7 +70,7 @@ public:
   /**
    * @brief return the string
    */
-  [[nodiscard]] virtual auto to_string() const noexcept -> std::string;
+  [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
   /**
    * @brief [TODO:description]
    *
@@ -78,7 +78,7 @@ public:
    */
   virtual auto to_string(basic_output &output) const noexcept -> void;
   /**
-   * @brief [TODO:description]
+   * @brief
    */
   [[nodiscard]] virtual auto
   get_type() const noexcept -> const std::type_info &;

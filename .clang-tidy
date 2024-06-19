@@ -1,7 +1,18 @@
-Checks: '-*,bugprone-*,modernize-*'
+Checks: '*,-llvmlibc-*,-cppcoreguidelines-*,-fuchsia-*'
+HeaderFilterRegex: '.*'
 CheckOptions:
-      - key: bugprone-argument-comment.StrictMode
-        value: 1
-      - key: bugprone-exception-escape.FunctionsThatShouldNotThrow
-        value: WinMain,SDL_main
+  - key:             readability-identifier-naming.ClassCase
+    value:           lower_case
+  - key:             readability-identifier-naming.EnumCase
+    value:           lower_case
+  - key:             readability-identifier-naming.FunctionCase
+    value:           lower_case
+  - key:             readability-identifier-naming.MemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ParameterCase
+    value:           lower_case
+  - key:             readability-identifier-naming.UnionCase
+    value:           lower_case
+  - key:             readability-identifier-naming.VariableCase
+    value:           lower_case
 FormatStyle: 'file'
