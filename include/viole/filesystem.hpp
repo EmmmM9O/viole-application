@@ -25,14 +25,18 @@ public:
   [[nodiscard]] auto file_name() const -> viole::string;
   [[nodiscard]] auto absolute_path() const -> viole::string;
   [[nodiscard]] auto path() const -> viole::string;
+  [[nodiscard]] auto read_string() const -> viole::string;
   [[nodiscard]] auto file_size() const -> uintmax_t;
 
   auto mkdir() const -> void;
   auto touch() const -> void;
   auto rename(const viole::string &) -> void;
-  auto remove() -> void;
+  auto move(const viole::string &) -> void;
+  auto move(const viole::fi &) -> void;
+  auto copy(const viole::fi &) const -> void;
+  auto remove() const -> void;
 
-  auto write_string(const viole::string &) -> void;
+  auto write_string(const viole::string &) const -> void;
 
   [[nodiscard]] auto to_string() const noexcept -> viole::string override;
   [[nodiscard]] auto
