@@ -1,0 +1,7 @@
+target("test-util")
+set_kind("binary")
+add_cxflags("-Wall", "-stdlib=libc++","-std=c++26")
+add_ldflags("-stdlib=libc++")
+add_includedirs("$(projectdir)/include/")
+add_files("*.cpp")
+add_deps("viole")

@@ -1,4 +1,4 @@
-Checks: '*,-llvmlibc-*,-cppcoreguidelines-*,-fuchsia-*'
+Checks: '*,-llvmlibc-*,-cppcoreguidelines-*,-fuchsia-*,-readability-convert-member-functions-to-static'
 HeaderFilterRegex: '.*'
 CheckOptions:
   - key:             readability-identifier-naming.ClassCase
@@ -9,10 +9,18 @@ CheckOptions:
     value:           lower_case
   - key:             readability-identifier-naming.MemberCase
     value:           lower_case
+  - key:             readability-identifier-naming.MemberPrefix
+    value:           m_
   - key:             readability-identifier-naming.ParameterCase
     value:           lower_case
   - key:             readability-identifier-naming.UnionCase
     value:           lower_case
   - key:             readability-identifier-naming.VariableCase
     value:           lower_case
+  - key:             readability-identifier-naming.LocalVariableCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ConceptCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ConceptSuffix
+    value:           _template
 FormatStyle: 'file'

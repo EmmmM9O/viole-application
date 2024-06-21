@@ -1,4 +1,4 @@
-add_rules("plugin.compile_commands.autoupdate", { outputdir = ".vscode" })
+add_rules("plugin.compile_commands.autoupdate", { outputdir = "build" })
 add_rules("mode.debug", "mode.release")
 set_toolset("cxx", "clang++")
 set_toolset("ld", "clang++")
@@ -15,9 +15,10 @@ set_languages("c++26")
 
 target("viole")
 set_kind("static")
-add_cxflags("-Wall", "-stdlib=libc++")
+add_cxflags("-Wall", "-stdlib=libc++","-std=c++26")
 add_ldflags("-stdlib=libc++")
 add_includedirs("$(projectdir)/include/")
 add_files("src/**.cpp")
 
 includes("example/**.lua")
+includes("test/**.lua")
