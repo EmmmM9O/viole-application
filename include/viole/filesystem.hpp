@@ -67,14 +67,16 @@ private:
   fi_types m_type = fi_types::none;
 
 public:
-  fi() = default;
+  explicit fi() = delete;
+  explicit fi(const char *path);
   explicit fi(const viole::string &path);
+  explicit fi(std::filesystem::path path);
   fi(const fi &);
   fi(fi &);
   fi &operator=(const fi &);
   fi &operator=(fi &&) noexcept;
   fi(fi &&) noexcept;
-  ~fi() = default;
+  ~fi() override = default;
   auto sync_fi_type() noexcept -> fi_types;
   [[nodiscard]] auto get_fi_type() const noexcept -> fi_types;
 
@@ -100,6 +102,15 @@ public:
   auto remove() const -> void;
 
   auto write_string(const viole::string &) const -> void;
+
+  auto operator/(const char *child) -> fi;
+  auto operator+(const char *child) -> fi;
+  auto operator/=(const char *child) -> fi &;
+  auto operator+=(const char *child) -> fi &;
+  auto operator--() -> fi ;
+  auto operator--(int) -> fi ;
+  auto operator==(const fi &other) -> bool;
+  [[nodiscard]] auto parent() const -> fi;
 
   [[nodiscard]] auto to_string() const noexcept -> viole::string override;
   [[nodiscard]] auto

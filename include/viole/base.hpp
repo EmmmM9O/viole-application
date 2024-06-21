@@ -8,6 +8,7 @@
 #pragma once
 #include "viole/stl.hpp"
 #include <typeinfo>
+
 namespace viole {
 /**
  * @class basic_output
@@ -67,10 +68,17 @@ public:
  */
 class basic_object {
 public:
+  basic_object() = default;
+  basic_object(const basic_object &) = default;
+  basic_object(basic_object &&) = delete;
+  basic_object &operator=(const basic_object &) = default;
+  basic_object &operator=(basic_object &&) = delete;
+  virtual ~basic_object() = default;
   /**
    * @brief return the string
    */
   [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
+  [[nodiscard]] virtual auto to_string_full() const noexcept -> viole::string;
   /**
    * @brief [TODO:description]
    *
@@ -82,5 +90,6 @@ public:
    */
   [[nodiscard]] virtual auto
   get_type() const noexcept -> const std::type_info &;
+  [[nodiscard]] virtual auto get_type_name() const noexcept -> const char *;
 };
 } // namespace viole

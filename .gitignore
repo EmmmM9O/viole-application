@@ -41,3 +41,4 @@ doc/
 .clangd
 html
 latex
+*.log

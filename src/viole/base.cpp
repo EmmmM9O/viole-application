@@ -1,4 +1,6 @@
 #include "viole/base.hpp"
+#include <cxxabi.h>
+
 namespace viole {
 [[nodiscard]] auto
 basic_object::get_type() const noexcept -> const std::type_info & {
@@ -9,6 +11,15 @@ auto basic_object::to_string(basic_output &output) const noexcept -> void {
   output.write_string(to_string());
 }
 [[nodiscard]] auto basic_object::to_string() const noexcept -> viole::string {
-  return "[basic_object]";
+  return "{}";
+}
+[[nodiscard]] auto
+basic_object::to_string_full() const noexcept -> viole::string {
+  return get_type_name() + to_string();
+}
+
+[[nodiscard]] auto basic_object::get_type_name() const noexcept -> const
+    char * {
+  return abi::__cxa_demangle(get_type().name(), nullptr, nullptr, nullptr);
 }
 } // namespace viole
