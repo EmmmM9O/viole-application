@@ -6,8 +6,8 @@
 #pragma once
 #include "viole/base.hpp"
 #include "viole/stl.hpp"
+#include <exception>
 #include <filesystem>
-#include <stdexcept>
 namespace viole {
 enum class fi_types { directory = 2, file = 1, none = 0 };
 
@@ -16,7 +16,7 @@ enum class fi_types { directory = 2, file = 1, none = 0 };
  * @brief [TODO:description]
  *
  */
-class fi_runtime_error : public std::runtime_error, public basic_object {
+class fi_runtime_error : public basic_object, public std::exception {
 private:
   std::filesystem::path m_path;
   viole::string m_error;
@@ -32,6 +32,9 @@ public:
   [[nodiscard]] auto to_string() const noexcept -> viole::string override;
   [[nodiscard]] auto
   get_type() const noexcept -> const std::type_info & override;
+
+  [[nodiscard]] auto what() const noexcept -> const char * override;
+  ~fi_runtime_error() noexcept override = default;
 };
 /**
  * @class fi_not_exists
@@ -93,13 +96,13 @@ public:
 
   [[nodiscard]] auto list() const -> viole::vector<fi>;
 
-  auto mkdir() const -> void;
-  auto touch() const -> void;
+  auto mkdir() -> void;
+  auto touch() -> void;
   auto rename(const viole::string &) -> void;
   auto move(const viole::string &) -> void;
-  auto move(const viole::fi &) -> void;
-  auto copy(const viole::fi &) const -> void;
-  auto remove() const -> void;
+  auto move(viole::fi &) -> void;
+  auto copy(viole::fi &) const -> void;
+  auto remove() -> void;
 
   auto write_string(const viole::string &) const -> void;
 
@@ -107,8 +110,8 @@ public:
   auto operator+(const char *child) -> fi;
   auto operator/=(const char *child) -> fi &;
   auto operator+=(const char *child) -> fi &;
-  auto operator--() -> fi ;
-  auto operator--(int) -> fi ;
+  auto operator--() -> fi;
+  auto operator--(int) -> fi;
   auto operator==(const fi &other) -> bool;
   [[nodiscard]] auto parent() const -> fi;
 

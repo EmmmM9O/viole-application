@@ -15,16 +15,18 @@ fi_runtime_error::get_path() const noexcept -> std::filesystem::path {
 }
 fi_runtime_error::fi_runtime_error(std::filesystem::path &&path,
                                    viole::string &&error, uint code)
-    : std::runtime_error(to_string()), m_path(path), m_error(error),
-      m_code(code) {}
+    : m_path(path), m_error(error), m_code(code) {}
 fi_runtime_error::fi_runtime_error(const std::filesystem::path &path,
                                    viole::string &&error, uint code)
-    : std::runtime_error(to_string()), m_path(path), m_error(error),
-      m_code(code) {}
+    : m_path(path), m_error(error), m_code(code) {}
 [[nodiscard]] auto
 fi_runtime_error::to_string() const noexcept -> viole::string {
-  return "[" + viole::string(get_type().name()) + "][fi][" + m_path.string() +
-         "][" + m_error + "]";
+  return "[fi]{[" + m_path.string() + "][" + m_error + "]}";
+}
+
+[[nodiscard]] auto fi_runtime_error::what() const noexcept -> const char * {
+  std::runtime_error tmp{to_string_full()};
+  return tmp.what();
 }
 [[nodiscard]] auto
 fi_runtime_error::get_type() const noexcept -> const std::type_info & {
@@ -42,12 +44,12 @@ fi_not_exists::get_type() const noexcept -> const std::type_info & {
 
 fi_type_error::fi_type_error(std::filesystem::path &&path, fi_types type)
     : fi_runtime_error(path,
-                       string("type error") + "need " + enum_to_string(type),
+                       string("type error") + " need " + enum_to_string(type),
                        1 + static_cast<int>(type)),
       m_type(type) {}
 fi_type_error::fi_type_error(const std::filesystem::path &path, fi_types type)
     : fi_runtime_error(path,
-                       string("type error") + "need " + enum_to_string(type),
+                       string("type error") + " need " + enum_to_string(type),
                        1 + static_cast<int>(type)),
       m_type(type) {}
 [[nodiscard]] auto
@@ -153,10 +155,14 @@ fi::fi(std::filesystem::path path) : m_path(std::move(path)) { sync_fi_type(); }
   return list;
 }
 
-auto fi::mkdir() const -> void { std::filesystem::create_directories(m_path); }
-auto fi::touch() const -> void {
+auto fi::mkdir() -> void {
+  std::filesystem::create_directories(m_path);
+  sync_fi_type();
+}
+auto fi::touch() -> void {
   std::ofstream ofs{m_path};
   ofs.close();
+  sync_fi_type();
 }
 auto fi::rename(const viole::string &new_name) -> void {
   if (!exists()) {
@@ -165,25 +171,32 @@ auto fi::rename(const viole::string &new_name) -> void {
   std::filesystem::rename(m_path, m_path.parent_path().concat(new_name));
 }
 
-auto fi::move(const viole::string &path) -> void { move(fi(path)); }
-auto fi::move(const viole::fi &path) -> void {
+auto fi::move(const viole::string &path) -> void {
   if (!exists()) {
     throw fi_not_exists(m_path);
   }
-
-  std::filesystem::rename(m_path, path.m_path);
+  std::filesystem::rename(m_path, std::filesystem::path(path));
 }
-auto fi::copy(const viole::fi &path) const -> void {
+auto fi::move(viole::fi &path) -> void {
+  if (!exists()) {
+    throw fi_not_exists(m_path);
+  }
+  std::filesystem::rename(m_path, path.m_path);
+  path.sync_fi_type();
+}
+auto fi::copy(viole::fi &path) const -> void {
   if (!exists()) {
     throw fi_not_exists(m_path);
   }
   std::filesystem::copy(m_path, path.m_path);
+  path.sync_fi_type();
 }
-auto fi::remove() const -> void {
+auto fi::remove() -> void {
   if (!exists()) {
     throw fi_not_exists(m_path);
   }
   std::filesystem::remove(m_path);
+  sync_fi_type();
 }
 
 auto fi::write_string(const viole::string &context) const -> void {
@@ -202,6 +215,7 @@ auto fi::operator/(const char *child) -> fi { return fi{m_path / child}; }
 auto fi::operator+(const char *child) -> fi { return fi{m_path.concat(child)}; }
 auto fi::operator/=(const char *child) -> fi & {
   m_path /= child;
+  sync_fi_type();
   return *this;
 }
 auto fi::operator+=(const char *child) -> fi & {
@@ -212,6 +226,7 @@ auto fi::operator--() -> fi { return fi{m_path.parent_path()}; }
 auto fi::operator--(int) -> fi {
   fi tmp{*this};
   m_path = m_path.parent_path();
+  sync_fi_type();
   return tmp;
 }
 auto fi::operator==(const fi &other) -> bool {

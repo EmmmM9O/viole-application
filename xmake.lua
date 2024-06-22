@@ -12,13 +12,15 @@ set_menu({
 task_end()
 includes("third_party/**.lua")
 set_languages("c++26")
+set_toolchains("clang")
 
 target("viole")
 set_kind("static")
-add_cxflags("-Wall", "-stdlib=libc++","-std=c++26")
+add_cxflags("-Wall", "-stdlib=libc++", "-std=c++26")
 add_ldflags("-stdlib=libc++")
 add_includedirs("$(projectdir)/include/")
 add_files("src/**.cpp")
 
 includes("example/**.lua")
 includes("test/**.lua")
+includes("plugin/**.lua")

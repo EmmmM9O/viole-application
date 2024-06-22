@@ -6,10 +6,12 @@
  */
 
 #pragma once
-#include "viole/stl.hpp"
 #include <typeinfo>
+#include <vector>
 
 namespace viole {
+using string = std::string;
+template <typename T> using vector = std::vector<T>;
 /**
  * @class basic_output
  * @brief [TODO:description]

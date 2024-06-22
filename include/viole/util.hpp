@@ -189,10 +189,13 @@ private:
   string &m_result;
 
 public:
-  explicit enum_define_reflector(string &res) : m_result(res) {}
+  explicit enum_define_reflector(string &res) : m_result(res) {
+  m_result+='{';
+  }
   template <I N> [[nodiscard]] constexpr auto call() const -> bool {
     auto res = c_enum_to_string_v<E, E(N)>();
     if (res == ENUM_OUTOF_RANGE_STRING) {
+	    m_result[m_result.length()-1]='}';
       return true;
     }
     m_result += std::to_string(N) + ":" + res + ",";
@@ -224,10 +227,9 @@ template <enum_template E> auto enum_name() -> string {
 template <enum_template E, std::underlying_type_t<E> min = ENUM_RANGE_MIN,
           std::underlying_type_t<E> max = ENUM_RANGE_MAX>
 auto enum_class_to_string() -> viole::string {
-  string str = "enum class " + enum_name<E>() + "{";
+  string str = "enum class " + enum_name<E>() ;
   template_call_loop<std::underlying_type_t<E>, min, max>(
       enum_define_reflector<E>(str));
-  str += "}";
   return str;
 }
 template <enum_template E, std::underlying_type_t<E> min = ENUM_RANGE_MIN,
@@ -323,7 +325,9 @@ auto to_string(const T &object) -> viole::string {
     return to_string_parser<T>().to_string(object);
   }
 }
-
 auto operator<<(std::ostream &stream,
                 const basic_object &object) -> std::ostream &;
+
+//
+
 } // namespace viole
