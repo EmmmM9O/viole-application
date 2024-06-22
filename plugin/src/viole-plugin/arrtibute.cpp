@@ -2,6 +2,7 @@
 #include "viole-plugin/base.hpp"
 #include <clang/AST/DeclCXX.h>
 #include <clang/Basic/DiagnosticSema.h>
+#include <clang/Basic/ParsedAttrInfo.h>
 #include <clang/Sema/Sema.h>
 namespace viole_plugin {
 must_override_attr_info::must_override_attr_info() {
@@ -23,5 +24,11 @@ auto must_override_attr_info::diagAppertainsToDecl(
   }
   must_override_methods.insert(the_method);
   return true;
+}
+
+auto must_override_attr_info::handleDeclAttribute(
+    clang::Sema &sema, clang::Decl *decl,
+    const clang::ParsedAttr &attr) const -> AttrHandling {
+  return AttributeNotApplied;
 }
 } // namespace viole_plugin

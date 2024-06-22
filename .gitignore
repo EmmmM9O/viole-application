@@ -43,3 +43,6 @@ html
 latex
 *.log
 .cache
+tmp
+*.out
+plugin/dist/

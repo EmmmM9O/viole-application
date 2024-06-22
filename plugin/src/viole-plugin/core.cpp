@@ -1,6 +1,8 @@
 #pragma once
+
 #include "viole-plugin/arrtibute.hpp"
 #include "viole-plugin/consumer.hpp"
+
 #include <clang/AST/ASTConsumer.h>
 #include <clang/Basic/ParsedAttrInfo.h>
 #include <clang/Frontend/ASTUnit.h>
@@ -10,7 +12,8 @@
 #include <memory>
 namespace viole_plugin {
 class viole_plugin_action : public clang::PluginASTAction {
-  auto CreateASTConsumer(clang::CompilerInstance &cci, llvm::StringRef /**/)
+
+  auto CreateASTConsumer(clang::CompilerInstance &cci, llvm::StringRef)
       -> std::unique_ptr<clang::ASTConsumer> override {
     return std::make_unique<viole_plugin_consumer>();
   }
@@ -23,8 +26,8 @@ class viole_plugin_action : public clang::PluginASTAction {
     return true;
   }
 
-  auto getActionType() -> PluginASTAction::ActionType override {
-    return AddBeforeMainAction;
+  auto getActionType() -> clang::PluginASTAction::ActionType override {
+    return clang::PluginASTAction::ActionType::AddBeforeMainAction;
   }
 };
 } // namespace viole_plugin

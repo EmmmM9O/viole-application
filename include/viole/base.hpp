@@ -73,14 +73,15 @@ public:
   basic_object() = default;
   basic_object(const basic_object &) = default;
   basic_object(basic_object &&) = delete;
-  basic_object &operator=(const basic_object &) = default;
-  basic_object &operator=(basic_object &&) = delete;
+  auto operator=(const basic_object &) -> basic_object & = default;
+  auto operator=(basic_object &&) -> basic_object & = delete;
   virtual ~basic_object() = default;
   /**
    * @brief return the string
    */
   [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
   [[nodiscard]] virtual auto to_string_full() const noexcept -> viole::string;
+
   /**
    * @brief [TODO:description]
    *

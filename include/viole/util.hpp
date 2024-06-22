@@ -42,17 +42,18 @@ concept loop_callable_template = requires(const T &func) {
   { func.template call<0>() } -> std::same_as<bool>;
 };
 template <loop_index_template I, I begin, I end, loop_callable_template F>
-constexpr typename std::enable_if<begin == end>::type
-template_call_loop(const F &func) {
+constexpr auto template_call_loop(const F &func) ->
+    typename std::enable_if<begin == end>::type {
   func.template call<begin>();
 }
 template <loop_index_template I, I begin, I end, loop_callable_template F>
-constexpr typename std::enable_if<begin != end>::type
-template_call_loop(const F &func) {
+constexpr auto template_call_loop(const F &func) ->
+    typename std::enable_if<begin != end>::type {
   if (!func.template call<begin>()) {
     template_call_loop<I, begin + 1, end>(func);
   }
 }
+
 // Enum
 template <typename Type>
 concept enum_template = std::is_enum<Type>::value;
@@ -190,12 +191,12 @@ private:
 
 public:
   explicit enum_define_reflector(string &res) : m_result(res) {
-  m_result+='{';
+    m_result += '{';
   }
   template <I N> [[nodiscard]] constexpr auto call() const -> bool {
     auto res = c_enum_to_string_v<E, E(N)>();
     if (res == ENUM_OUTOF_RANGE_STRING) {
-	    m_result[m_result.length()-1]='}';
+      m_result[m_result.length() - 1] = '}';
       return true;
     }
     m_result += std::to_string(N) + ":" + res + ",";
@@ -227,7 +228,7 @@ template <enum_template E> auto enum_name() -> string {
 template <enum_template E, std::underlying_type_t<E> min = ENUM_RANGE_MIN,
           std::underlying_type_t<E> max = ENUM_RANGE_MAX>
 auto enum_class_to_string() -> viole::string {
-  string str = "enum class " + enum_name<E>() ;
+  string str = "enum class " + enum_name<E>();
   template_call_loop<std::underlying_type_t<E>, min, max>(
       enum_define_reflector<E>(str));
   return str;
