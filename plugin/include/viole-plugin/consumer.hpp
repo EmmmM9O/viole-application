@@ -11,6 +11,7 @@ class decl_must_override_callback
     : public clang::ast_matchers::MatchFinder::MatchCallback {
 private:
   unsigned m_warning_not_override;
+  unsigned m_test_id;
   unsigned m_note_previous_must_override;
 
 public:

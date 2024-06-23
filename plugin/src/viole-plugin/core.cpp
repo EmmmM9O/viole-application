@@ -31,10 +31,10 @@ class viole_plugin_action : public clang::PluginASTAction {
     }
     return true;
   }
-
   auto getActionType() -> clang::PluginASTAction::ActionType override {
     return clang::PluginASTAction::ActionType::AddBeforeMainAction;
   }
+  
 };
 } // namespace viole_plugin
 // NOLINTBEGIN

@@ -20,11 +20,12 @@ auto decl_must_override_callback::run(
             : clang::DiagnosticsEngine::Warning,
       "virtual function %q0 is marked as 'must_override' but not override "
       "method does not override the base");
+  m_test_id =m_diags.getCustomDiagID(clang::DiagnosticsEngine::Warning,
+		  "test diag");
   m_note_previous_must_override = m_diags.getCustomDiagID(
       clang::DiagnosticsEngine::Note, "function marked 'must_override' here");
   const auto class_decl =
       result.Nodes.getNodeAs<clang::CXXRecordDecl>("classdef");
-
   llvm::SmallPtrSet<const clang::CXXMethodDecl *, VIOLE_SIZE> base_funcs;
   for (const auto &base : class_decl->bases()) {
     auto type = base.getType();
@@ -41,6 +42,8 @@ auto decl_must_override_callback::run(
       }
     }
   }
+
+//   m_diags.Report(class_decl->getLocation(), m_test_id);
   for (const auto &func : class_decl->methods()) {
     for (const auto &tog : base_funcs) {
       if (tog->getNameAsString() == func->getNameAsString()) {
