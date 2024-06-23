@@ -16,7 +16,7 @@ auto decl_must_override_callback::run(
   auto *context = result.Context;
   auto &m_diags = context->getDiagnostics();
   m_warning_not_override = m_diags.getCustomDiagID(
-      clang::DiagnosticsEngine::Warning,
+      error? clang::DiagnosticsEngine::Error : clang::DiagnosticsEngine::Warning ,
       "virtual function %q0 is marked as 'must_override' but not override "
       "method does not override the base");
   m_note_previous_must_override = m_diags.getCustomDiagID(

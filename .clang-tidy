@@ -24,3 +24,4 @@ CheckOptions:
   - key:             readability-identifier-naming.ConceptSuffix
     value:           _template
 FormatStyle: 'file'
+

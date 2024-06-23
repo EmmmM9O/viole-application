@@ -10,6 +10,7 @@ class bar2 : public bar {
   void test2() override;
 };
 auto main() -> int {
+  
   std::cout << "test plugin" << std::endl;
   return 0;
 }

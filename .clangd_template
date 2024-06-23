@@ -1,15 +1,11 @@
 CompileFlags:
-  Add: [-std=c++26,-Wall,-O3,-xc++,-I@PROJECT/src,-I@PROJECT/include/,-stdlib=libc++]
+  Add: [-std=c++23,-Wall,-O3,-xc++,-I@PROJECT/src,-I@PROJECT/include/,-stdlib=libc++,-fplugin=@PROJECT/plugin/dist/libviole-plugin.so]
   Compiler: clang++
 Diagnostics:
   UnusedIncludes: Strict
   ClangTidy:
-    Add: modernize*
-    Remove: modernize-use-trailing-return-type
-    CheckOptions:
-      readability-identifier-naming.VariableCase: CamelCase
-checks:
-    - '*-clang-tidy'
+   Add: modernize*
+
 InlayHints:
   Designators: Yes
   Enabled: Yes

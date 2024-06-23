@@ -2,7 +2,7 @@
 #include <clang/AST/DeclCXX.h>
 #include <llvm/ADT/SmallPtrSet.h>
 namespace viole_plugin {
-
+extern bool error;
 extern llvm::SmallPtrSet<const clang::CXXMethodDecl *, 16>
     must_override_methods;
 

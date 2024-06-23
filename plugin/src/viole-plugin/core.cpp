@@ -23,6 +23,12 @@ class viole_plugin_action : public clang::PluginASTAction {
     if (!args.empty() && args[0] == "help") {
       llvm::errs() << "Help for the Viole Plugin\n";
     }
+    if (!args.empty() && args[0] == "warn") {
+	    error=false;
+    }
+    if (!args.empty() && args[0] == "error") {
+	    error=true;
+    }
     return true;
   }
 
