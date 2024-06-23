@@ -24,10 +24,10 @@ class viole_plugin_action : public clang::PluginASTAction {
       llvm::errs() << "Help for the Viole Plugin\n";
     }
     if (!args.empty() && args[0] == "warn") {
-	    error=false;
+      error = false;
     }
     if (!args.empty() && args[0] == "error") {
-	    error=true;
+      error = true;
     }
     return true;
   }
@@ -41,5 +41,8 @@ class viole_plugin_action : public clang::PluginASTAction {
 static clang::FrontendPluginRegistry::Add<viole_plugin::viole_plugin_action>
     X("viole_plugin", "the custome plugin for the project viole-application");
 static clang::ParsedAttrInfoRegistry::Add<viole_plugin::must_override_attr_info>
-    Y("viole_plugin_attr", "Attribute for viole plugin");
+    Y("must_override_attr", "Attribute for viole plugin");
+static clang::ParsedAttrInfoRegistry::Add<
+    viole_plugin::must_override_del_attr_info>
+    Y2("must_override_del_attr", "Attribute for viole plugin");
 // NOLINTEND

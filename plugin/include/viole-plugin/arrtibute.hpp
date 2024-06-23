@@ -12,4 +12,13 @@ struct must_override_attr_info : public clang::ParsedAttrInfo {
                            const clang::ParsedAttr &attr) const
       -> AttrHandling override;
 };
+
+struct must_override_del_attr_info : public clang::ParsedAttrInfo {
+  must_override_del_attr_info();
+  auto diagAppertainsToDecl(clang::Sema &sema, const clang::ParsedAttr &attr,
+                            const clang::Decl *decl) const -> bool override;
+  auto handleDeclAttribute(clang::Sema &sema, clang::Decl *decl,
+                           const clang::ParsedAttr &attr) const
+      -> AttrHandling override;
+};
 } // namespace viole_plugin

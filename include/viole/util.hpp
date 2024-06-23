@@ -1,6 +1,6 @@
 #pragma once
 #include "viole/base.hpp"
-#include "viole/stl.hpp"
+#include "viole/templates.hpp"
 #include <algorithm>
 #include <concepts>
 #include <cstring>
@@ -11,48 +11,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-
 namespace viole {
-// NOLINTBEGIN
-#define TEMPLATE_FIT(__TYPE, __TEMPLATE)                                       \
-  static_assert(__TEMPLATE<__TYPE>, #__TYPE " not fit the " #__TEMPLATE)
-// NOLINTEND
-template <std::size_t N> struct template_string {
-  constexpr template_string(const char (&arr)[N]) {
-    std::copy(arr, arr + N, m_string);
-  }
-  char m_string[N]{};
-};
-
-template <typename T>
-concept runnable_template = requires(T func) {
-  { func() } -> std::same_as<void>;
-};
-template <typename T>
-concept callable_template = requires(const T &func) {
-  { func.call() } -> std::same_as<void>;
-};
-// loop
-template <typename T>
-concept loop_index_template = requires(T index) {
-  { index + 1 } -> std::same_as<T>;
-};
-template <typename T>
-concept loop_callable_template = requires(const T &func) {
-  { func.template call<0>() } -> std::same_as<bool>;
-};
-template <loop_index_template I, I begin, I end, loop_callable_template F>
-constexpr auto template_call_loop(const F &func) ->
-    typename std::enable_if<begin == end>::type {
-  func.template call<begin>();
-}
-template <loop_index_template I, I begin, I end, loop_callable_template F>
-constexpr auto template_call_loop(const F &func) ->
-    typename std::enable_if<begin != end>::type {
-  if (!func.template call<begin>()) {
-    template_call_loop<I, begin + 1, end>(func);
-  }
-}
 
 // Enum
 template <typename Type>
@@ -310,11 +269,15 @@ template <typename T>
 concept is_to_string_parser_template = requires(T obj) {
   { to_string_parser<T>().to_string(obj) } -> std::same_as<viole::string>;
 };
+template <typename T>
+concept is_to_string_std_template = requires(T obj) {
+  { std::to_string(obj) } -> std::same_as<std::string>;
+};
 
 template <typename T>
 concept to_string_template =
     is_base_object_template<T> || is_to_string_parser_template<T> ||
-    enum_template<T>;
+    enum_template<T> || is_to_string_std_template<T>;
 
 template <to_string_template T>
 auto to_string(const T &object) -> viole::string {
@@ -322,6 +285,8 @@ auto to_string(const T &object) -> viole::string {
     return object.to_string();
   } else if constexpr (enum_template<T>) {
     return enum_to_string(object);
+  } else if constexpr (is_to_string_std_template<T>) {
+    return std::to_string(object);
   } else {
     return to_string_parser<T>().to_string(object);
   }

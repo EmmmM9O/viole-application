@@ -16,7 +16,8 @@ auto decl_must_override_callback::run(
   auto *context = result.Context;
   auto &m_diags = context->getDiagnostics();
   m_warning_not_override = m_diags.getCustomDiagID(
-      error? clang::DiagnosticsEngine::Error : clang::DiagnosticsEngine::Warning ,
+      error ? clang::DiagnosticsEngine::Error
+            : clang::DiagnosticsEngine::Warning,
       "virtual function %q0 is marked as 'must_override' but not override "
       "method does not override the base");
   m_note_previous_must_override = m_diags.getCustomDiagID(
@@ -24,15 +25,15 @@ auto decl_must_override_callback::run(
   const auto class_decl =
       result.Nodes.getNodeAs<clang::CXXRecordDecl>("classdef");
 
-  llvm::SmallPtrSet<const clang::CXXMethodDecl *, 16> base_funcs;
-  for (auto &base : class_decl->bases()) {
+  llvm::SmallPtrSet<const clang::CXXMethodDecl *, VIOLE_SIZE> base_funcs;
+  for (const auto &base : class_decl->bases()) {
     auto type = base.getType();
     if (const auto *base_record_type = type->getAs<clang::RecordType>()) {
       if (const auto *base_decl =
               base_record_type->getDecl()->getDefinition()) {
         for (const auto &ite : base_decl->decls()) {
           if (auto *func = llvm::dyn_cast<clang::CXXMethodDecl>(ite)) {
-            if (is_marked_as_must_override(func)) {
+            if (is_marked_as_must_override(func)&&!must_override_del_methods.contains(func)) {
               base_funcs.insert(func);
             }
           }
@@ -43,7 +44,9 @@ auto decl_must_override_callback::run(
   for (const auto &func : class_decl->methods()) {
     for (const auto &tog : base_funcs) {
       if (tog->getNameAsString() == func->getNameAsString()) {
-        must_override_methods.insert(func);
+        if ( !must_override_del_methods.contains(func) ) {
+          must_override_methods.insert(func);
+        }
         base_funcs.erase(tog);
       }
     }

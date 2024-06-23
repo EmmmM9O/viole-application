@@ -29,7 +29,8 @@ public:
                    uint code);
   fi_runtime_error(const std::filesystem::path &path, viole::string &&error,
                    uint code);
-  [[nodiscard]] auto to_string() const noexcept -> viole::string override;
+  [[viole::must_override_del]] [[nodiscard]] auto
+  to_string() const noexcept -> viole::string override;
   [[nodiscard]] auto
   get_type() const noexcept -> const std::type_info & override;
 

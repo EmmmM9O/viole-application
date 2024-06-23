@@ -79,7 +79,7 @@ public:
   /**
    * @brief return the string
    */
-  [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
+   [[viole::must_override]] [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
   [[nodiscard]] virtual auto to_string_full() const noexcept -> viole::string;
 
   /**
@@ -91,8 +91,9 @@ public:
   /**
    * @brief
    */
-  [[nodiscard]] virtual auto
+  [[viole::must_override]] [[nodiscard]] virtual auto
   get_type() const noexcept -> const std::type_info &;
-  [[nodiscard]] virtual auto get_type_name() const noexcept -> const char *;
+ [[nodiscard]] virtual auto
+  get_type_name() const noexcept -> const char *;
 };
 } // namespace viole
