@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 namespace viole {
 
 [[nodiscard]] auto fi_runtime_error::get_code() const noexcept -> uint {
@@ -87,20 +88,22 @@ fi::fi(const char *path) : m_path(path) {}
 fi::fi(const viole::string &path) : m_path(path) { sync_fi_type(); }
 fi::fi(const fi &file) : m_path(file.m_path) { sync_fi_type(); }
 fi::fi(fi &file) : m_path(file.m_path) { sync_fi_type(); }
-fi &fi::operator=(const fi &file) {
+auto fi::operator=(const fi &file) -> fi & {
   if (this != &file) {
     sync_fi_type();
     m_path = file.m_path;
   }
   return *this;
 }
-fi &fi::operator=(fi &&path) noexcept {
+auto fi::operator=(fi &&path) noexcept -> fi & {
 
   sync_fi_type();
-  m_path = path.m_path;
+  m_path = std::exchange(path.m_path, {});
   return *this;
 }
-fi::fi(fi &&path) noexcept : m_path(std::move(path.m_path)) { sync_fi_type(); }
+fi::fi(fi &&path) noexcept : m_path(std::exchange(path.m_path, {})) {
+  sync_fi_type();
+}
 
 fi::fi(std::filesystem::path path) : m_path(std::move(path)) { sync_fi_type(); }
 [[nodiscard]] auto fi::exists() const noexcept -> bool {

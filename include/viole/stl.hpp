@@ -2,20 +2,27 @@
 #include "viole/base.hpp"
 #include "viole/templates.hpp"
 #include "viole/util.hpp"
+#include <algorithm>
 #include <initializer_list>
 #include <memory>
 #include <mutex>
 #include <type_traits>
+#include <utility>
 namespace viole {
 template <typename Data, typename Size>
 class basic_queue : public basic_object {
+public:
+basic_queue()=default;
+  basic_queue(const basic_queue &) = delete;
+  basic_queue(basic_queue &&) noexcept = default;
+  auto operator=(const basic_queue &) -> basic_queue & = delete;
+  auto operator=(basic_queue &&) noexcept -> basic_queue & = default;
   /*
    * index_type Size
    * data_type Data
    */
-public:
   [[nodiscard]] virtual auto size() const -> Size = 0;
-  [[nodiscard]] virtual auto empty() -> bool const = 0;
+  [[nodiscard]] virtual auto empty() const -> bool = 0;
   virtual auto push(Data) -> void = 0;
   virtual auto clear() -> void = 0;
   virtual auto pop() -> Data = 0;
@@ -28,7 +35,7 @@ public:
   get_type() const noexcept -> const std::type_info & override {
     return typeid(basic_queue<Data, Size>);
   }
-  ~basic_queue() override {}
+  ~basic_queue() override = default;
 };
 template <typename T>
 concept basic_queue_template = std::is_base_of<basic_object, T>::value &&
@@ -49,7 +56,7 @@ template <typename Data> class queue : public basic_queue<Data, std::size_t> {
   node_ref m_front = nullptr, m_rear = nullptr;
 
 public:
-  [[nodiscard]] auto empty() -> bool const override { return m_size == 0; }
+  [[nodiscard]] auto empty() const -> bool override { return m_size == 0; }
   [[nodiscard]] auto front() const -> Data override {
     if (m_front != nullptr) {
       return m_front->m_data;
@@ -86,12 +93,23 @@ public:
   }
   queue(const queue &) = delete;
   queue() : m_front(nullptr), m_rear(nullptr) {};
+  queue(queue &&o_queue) noexcept
+      : m_front(std::exchange(o_queue.m_front, nullptr)),
+        m_rear(std::exchange(o_queue.m_rear, nullptr)),
+        m_size(std::exchange(o_queue.m_size, 0)) {};
+  auto operator=(const queue &) -> queue & = delete;
+  auto operator=(queue &&o_queue) noexcept -> queue & {
+    m_front = std::exchange(o_queue.m_front, nullptr);
+    m_rear = std::exchange(o_queue.m_rear, nullptr);
+    m_size = std::exchange(o_queue.m_size, 0);
+    return *this;
+  };
   queue(std::initializer_list<Data> list) {
     for (auto value : list) {
       push(value);
     }
   }
-  ~queue() {}
+  ~queue() override = default;
   using data_type = Data;
   using index_type = std::size_t;
 
@@ -100,10 +118,10 @@ public:
     std::lock_guard<std::mutex> lock{m_mutex};
     if (m_size == 0) {
 
-      m_front = std::make_unique<node>(data, nullptr);
+      m_front = std::make_unique<node>(std::move(data), nullptr);
       m_rear = m_front;
     } else {
-      m_rear->m_next = std::make_unique<node>(data, nullptr);
+      m_rear->m_next = std::make_unique<node>(std::move(data), nullptr);
       m_rear = m_rear->m_next;
     }
     m_size++;
