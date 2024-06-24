@@ -51,22 +51,28 @@ auto main() -> int {
       .post()
       .work();
   int size = 0;
-  auto k = viole::main_thread_looper
-               .execute_util([&size]() {
-                 if (size >= 10) {
-                   print("util finish");
-                   return true;
-                 }
-                 print("start");
-                 size++;
-                 return false;
-               })
-               ->then([]() { print("async exector util finish"); })
-               .post()
-               .work();
-  auto prom = mst();
-  prom->wrok_on(&viole::main_thread_looper);
-  prom.then([]() { print("mst end"); }).get_result();
+  viole::main_thread_looper
+      .execute_util([&size]() {
+        if (size >= 10) {
+          print("util finish");
+          return true;
+        }
+        print("start");
+        size++;
+        return false;
+      })
+      ->then([]() { print("async exector util finish"); })
+      .post()
+      .work();
+  print("----");
+  mst()
+      .opt([](viole::looper_executor::executor_operator &opt) {
+        opt.wrok_on(&viole::main_thread_looper).execute([]() {
+          print("opt print");
+        });
+      })
+      .then([]() { print("mnt end"); })
+      .get_result();
 
   viole::main_thread_looper.shutdown(true);
   viole::main_thread_looper.join();

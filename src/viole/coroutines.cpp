@@ -182,15 +182,22 @@ private:
   return string("{promise of{") + m_looper->to_string_full() + "}}";
 }
 
-auto async_promise::set_index(size_t index) -> void { m_index = index; }
+auto async_promise::set_index(size_t index) -> async_promise & {
+  m_index = index;
+  return *this;
+}
+auto async_promise::set_finish() -> async_promise & {
+  m_finish.store(true, std::memory_order_relaxed);
+  m_condition.notify_all();
+  return *this;
+}
 [[nodiscard]] auto
 async_promise::get_type() const noexcept -> const std::type_info & {
   return typeid(async_promise);
 }
 auto async_promise::post() -> async_promise & {
   m_looper->execute([this]() {
-    auto res = m_func(std::move(m_then), m_finish);
-    m_finish = true;
+    auto res = m_func(std::move(m_then), this);
     return res;
   });
   m_post = true;
@@ -207,16 +214,19 @@ auto async_promise::work() -> async_promise & {
   if (!m_post) {
     post();
   }
-  while (!m_finish) {
-  }
+  std::unique_lock lock(m_lock);
+  m_condition.wait(
+      lock, [this]() { return m_finish.load(std::memory_order_relaxed); });
   return *this;
 }
 
-[[nodiscard]] auto async_promise::finished() const -> bool { return m_finish; }
+[[nodiscard]] auto async_promise::finished() const -> bool {
+  return m_finish.load(std::memory_order_relaxed);
+}
 async_promise::async_promise(
     basic_async_looper *looper,
-    std::function<bool(function_type &&, bool &)> &&func)
-    : m_looper(looper), m_func(func) {
+    std::function<bool(function_type &&, async_promise *)> &&func)
+    : m_looper(looper), m_func(func), m_index(0) {
 
   m_then = [this]() { m_looper->reset_promise(m_index); };
 }
@@ -226,9 +236,9 @@ auto st_async_looper::reset_promise(size_t index) -> void {
 auto st_async_looper::execute_async(std::function<void()> &&func)
     -> std::shared_ptr<async_promise> {
   std::shared_ptr<async_promise> ptr = std::make_shared<async_promise>(
-      this, [func](auto &&then, auto &finished) -> bool {
+      this, [func](auto &&then, async_promise *pro) -> bool {
         func();
-        finished = true;
+        pro->set_finish();
         if (then) {
           then();
         }
@@ -242,9 +252,9 @@ auto st_async_looper::execute_async(std::function<void()> &&func)
 auto st_async_looper::execute_util(std::function<bool()> &&func)
     -> std::shared_ptr<async_promise> {
   std::shared_ptr<async_promise> ptr = std::make_shared<async_promise>(
-      this, [func](std::function<void()> &&then, bool &finished) -> bool {
+      this, [func](std::function<void()> &&then, async_promise *pro) -> bool {
         if (func()) {
-          finished = true;
+          pro->set_finish();
           if (then) {
             then();
           }
@@ -318,6 +328,12 @@ looper_executor::executor_operator::task_size() const noexcept -> size_t {
 looper_executor::executor_operator::is_active() const noexcept -> bool {
   return m_executor->m_looper->is_active();
 }
+auto looper_executor::executor_operator::execute(std::function<void()> &&func)
+    -> executor_operator & {
+  m_executor->execute(std::move(func));
+  return *this;
+}
+
 auto looper_executor::get_operator() -> executor_operator & {
   return m_operator;
 }

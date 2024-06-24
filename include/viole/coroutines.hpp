@@ -2,6 +2,7 @@
 #include "viole/base.hpp"
 #include "viole/templates.hpp"
 #include <concepts>
+#include <condition_variable>
 #include <coroutine>
 #include <exception>
 #include <functional>
@@ -284,6 +285,11 @@ public:
     m_handle.promise().on_completed([func](auto /*result*/) { func(); });
     return *this;
   }
+  auto opt(std::function<void(typename Executor::executor_operator &)> &&func)
+      -> basic_task & {
+    func(m_executor->get_operator());
+    return *this;
+  }
 
 private:
   std::coroutine_handle<promise_type> m_handle;
@@ -471,6 +477,11 @@ public:
   auto operator->() const -> Executor::executor_operator * {
     return m_executor->get_operator_point();
   }
+  auto opt(std::function<void(typename Executor::executor_operator &)> &&func)
+      -> basic_task & {
+    func(m_executor->get_operator());
+    return *this;
+  }
   ~basic_task() override {
     if (m_handle) {
       m_handle.destroy();
@@ -561,18 +572,23 @@ public:
   auto then(function_type &&func) -> async_promise &;
   auto post() -> async_promise &;
   auto work() -> async_promise &;
-  explicit async_promise(basic_async_looper *looper,
-                         std::function<bool(function_type &&, bool &)> &&func);
+  explicit async_promise(
+      basic_async_looper *looper,
+      std::function<bool(function_type &&, async_promise *)> &&func);
   [[nodiscard]] auto finished() const -> bool;
 
-  auto set_index(size_t index) -> void;
+  auto set_index(size_t index) -> async_promise &;
+  auto set_finish() -> async_promise &;
 
 private:
   basic_async_looper *m_looper;
-  std::function<bool(function_type &&, bool &)> m_func;
+  std::function<bool(function_type &&, async_promise *)> m_func;
   function_type m_then;
-  bool m_post = false, m_finish = false;
+  bool m_post = false;
   size_t m_index;
+  std::condition_variable m_condition;
+  std::mutex m_lock;
+  std::atomic<bool> m_finish;
 };
 template <typename T>
 using noop_task = basic_task<noop_executor, T, std::exception_ptr>;
@@ -641,7 +657,7 @@ public:
 
     [[nodiscard]] auto task_size() const noexcept -> size_t;
     [[nodiscard]] auto is_active() const noexcept -> bool;
-    auto execute(std::function<void()> &&func) -> void;
+    auto execute(std::function<void()> &&func) -> executor_operator &;
 
   private:
     looper_executor *m_executor;
