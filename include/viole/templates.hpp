@@ -4,7 +4,11 @@
 #include <concepts>
 #include <cstddef>
 namespace viole {
-
+template <typename T, typename R, typename P1, typename P2>
+concept func2_template = requires(T func, P1 mp1, P2 mp2) {
+  { func(mp1, mp2) } -> std::same_as<R>;
+};
+//
 template <std::size_t N> struct template_string {
   constexpr template_string(const char (&arr)[N]) {
     std::copy(arr, arr + N, m_string);

@@ -330,7 +330,7 @@ looper_executor::executor_operator::is_active() const noexcept -> bool {
 }
 auto looper_executor::executor_operator::execute(std::function<void()> &&func)
     -> executor_operator & {
-  m_executor->execute(std::move(func));
+  m_executor->execute(std::forward<std::function<void()>>(func));
   return *this;
 }
 

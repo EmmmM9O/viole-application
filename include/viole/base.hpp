@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file base
  * @brief basic types
  * @author novarc
  * @date 2024-5-19
@@ -79,7 +79,8 @@ public:
   /**
    * @brief return the string
    */
-   [[viole::must_override]] [[nodiscard]] virtual auto to_string() const noexcept -> viole::string;
+  [[viole::must_override]] [[nodiscard]] virtual auto
+  to_string() const noexcept -> viole::string;
   [[nodiscard]] virtual auto to_string_full() const noexcept -> viole::string;
 
   /**
@@ -93,7 +94,6 @@ public:
    */
   [[viole::must_override]] [[nodiscard]] virtual auto
   get_type() const noexcept -> const std::type_info &;
- [[nodiscard]] virtual auto
-  get_type_name() const noexcept -> const char *;
+  [[nodiscard]] virtual auto get_type_name() const noexcept -> const char *;
 };
 } // namespace viole
