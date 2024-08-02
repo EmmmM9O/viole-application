@@ -11,8 +11,19 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <typeinfo>
 namespace viole {
-
+// mate
+struct any_type_temp {
+  template <typename T> operator T();
+};
+template <typename T> consteval auto count_member(auto &&...args) -> size_t {
+  if constexpr (!requires { T{args...}; }) {
+    return sizeof...(args) - 1;
+  } else {
+    return count_member<T>(args..., any_type_temp{});
+  }
+}
 // Enum
 template <typename Type>
 concept enum_template = std::is_enum<Type>::value;
@@ -296,4 +307,14 @@ auto operator<<(std::ostream &stream,
 
 //
 
+auto abi_type_info_to_string(const std::type_info type) -> std::string; 
+template <typename Type> auto abi_type_to_string() -> std::string {
+  return abi::__cxa_demangle(typeid(Type).name(), nullptr, nullptr, nullptr);
+}
+template <typename T> consteval auto type_to_string() -> std::string {
+  auto str = __PRETTY_FUNCTION__;
+  auto first = str.find("T = ");
+  first += 4;
+  return {str, first, str.length() - first - 1};
+}
 } // namespace viole

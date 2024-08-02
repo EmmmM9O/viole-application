@@ -2,7 +2,11 @@
 #include "viole/util.hpp"
 #include <iostream>
 enum class T1 { y1, y2 };
-int main() {
+struct test {
+  int t1;
+  int t2;
+};
+auto main() -> int {
   std::cout << "util test\n to_string:";
   viole::basic_object obj;
   T1 foo = T1::y1;
@@ -17,5 +21,6 @@ int main() {
     std::cout << "value:" << val << ";";
   }
   std::cout << "\n" << viole::enum_class_to_string<T1>();
+  std::cout << "\ntest has :" << viole::count_member<test>();
   return 0;
 }

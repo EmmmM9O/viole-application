@@ -8,5 +8,7 @@ auto operator<<(std::ostream &stream,
   stream << object.to_string_full();
   return stream;
 }
-
+auto abi_type_info_to_string(const std::type_info type) -> std::string{
+  return abi::__cxa_demangle(type.name(), nullptr, nullptr, nullptr);
+}
 } // namespace viole
