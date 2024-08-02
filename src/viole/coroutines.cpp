@@ -5,6 +5,7 @@
 #include <functional>
 #include <future>
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <queue>
 #include <thread>

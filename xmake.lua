@@ -16,7 +16,9 @@ set_toolchains("clang")
 
 target("viole")
 set_kind("static")
-add_cxflags("-Wall", "-stdlib=libc++", "-std=c++23", "-fplugin=$(projectdir)/plugin/dist/libviole-plugin.so")
+add_cxflags("-Wall", "-stdlib=libc++", "-std=c++23", 
+"-fplugin=/home/novarc/plugin/dist/libviole-plugin.so"
+)
 add_ldflags("-stdlib=libc++")
 add_includedirs("$(projectdir)/include/")
 add_files("src/**.cpp")

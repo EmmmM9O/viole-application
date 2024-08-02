@@ -1,12 +1,12 @@
 #include "viole/parser.hpp"
 #include <iostream>
-constexpr auto sign = viole::option(viole::one_of("+-"), '+');
-constexpr auto number = viole::at_least(
-    viole::one_of("1234567890"), 0,
+constexpr auto sign = viole::parser::option(viole::parser::one_of("+-"), '+');
+constexpr auto number = viole::parser::at_least(
+    viole::parser::one_of("1234567890"), 0,
     [](int acc, char chara) -> int { return acc * 10 + (chara - '0'); });
-constexpr auto unsigned_int = viole::option(number, 0);
+constexpr auto unsigned_int = viole::parser::option(number, 0);
 constexpr auto int_parser =
-    viole::combine(sign, unsigned_int, [](char sign, int num) -> int {
+    viole::parser::combine(sign, unsigned_int, [](char sign, int num) -> int {
       return sign == '+' ? num : -num;
     });
 auto main() -> int {

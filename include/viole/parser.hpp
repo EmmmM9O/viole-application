@@ -25,14 +25,14 @@ concept parser_t_template = requires(T obj, Input input) {
     std::invoke_result_t<T, Input>::value_type::second_type
   } -> std::same_as<Input>;
 };
-template <typename Input> struct parser {
+template <typename Input> struct parser_input {
   using input_type = Input;
   template <typename Result>
   using result_type = std::optional<std::pair<Result, input_type>>;
   template <typename Result>
   using function_type = auto (*)(input_type) -> result_type<Result>;
 
-  constexpr auto make_char_parser(char cha) {
+  static constexpr auto make_char_parser(char cha) {
     return [=](input_type input) -> result_type<char> {
       if (input.empty() || cha != input[0]) {
         return std::nullopt;
@@ -41,7 +41,7 @@ template <typename Input> struct parser {
                             input_type(input.begin() + 1, input.size() - 1));
     };
   }
-  constexpr auto one_of(input_type chars) {
+  static constexpr auto one_of(input_type chars) {
     return [=](input_type input) -> result_type<char> {
       if (input.empty() || chars.find(input) == std::string::npos) {
         return std::nullopt;
@@ -57,7 +57,7 @@ template <typename Input> struct parser {
   template <typename Parser> using parser_t = parser_type<Parser>::type;
   template <typename P1, typename P2, typename F,
             typename R = std::invoke_result_t<F, parser_t<P1>, parser_t<P2>>>
-  constexpr auto combine(P1 &&parser1, P2 &&parser2, F &&func) {
+  static constexpr auto combine(P1 &&parser1, P2 &&parser2, F &&func) {
     return [=](input_type input) -> result_type<R> {
       auto result1 = parser1(input);
       if (!result1) {
@@ -73,7 +73,7 @@ template <typename Input> struct parser {
   };
 
   template <typename R, typename P, func2_template<R, R, parser_t<P>> F>
-  constexpr auto fold(P &&parser, R acc, F &&func,
+  static constexpr auto fold(P &&parser, R acc, F &&func,
                       input_type input) -> result_type<R> {
     while (true) {
       auto res = parser(input);
@@ -84,7 +84,7 @@ template <typename Input> struct parser {
       input = res->second;
     }
   }
-  template <typename P> constexpr auto many(P &&parser) {
+  template <typename P> static constexpr auto many(P &&parser) {
     return [parser = std::forward<P>(parser)](
                input_type input) -> result_type<std::monostate> {
       return fold(
@@ -92,7 +92,7 @@ template <typename Input> struct parser {
     };
   }
   template <typename P, typename R, func2_template<R, R, parser_t<P>> F>
-  constexpr auto at_least(P &&parser, R &&init, F &&func) {
+  static constexpr auto at_least(P &&parser, R &&init, F &&func) {
     static_assert(std::is_same_v<std::invoke_result_t<F, R, parser_t<P>>, R>,
                   "type mismatch");
     return [parser = std::forward<P>(parser), func = std::forward<F>(func),
@@ -101,12 +101,12 @@ template <typename Input> struct parser {
       if (!res) {
         return std::nullopt;
       }
-      return viole::parser<R>::fold(parser, func(init, res->first), func,
+      return fold(parser, func(init, res->first), func,
                                     res->second);
     };
   }
   template <typename P, typename R = parser_t<P>>
-  constexpr auto option(P &&parser, R &&default_v) {
+  static constexpr auto option(P &&parser, R &&default_v) {
     return [=](input_type input) -> result_type<R> {
       auto res = parser(input);
       if (!res) {
@@ -117,16 +117,16 @@ template <typename Input> struct parser {
   }
 };
 template <typename P1, typename P2>
-constexpr auto operator>(P1 &&parser1, P2 &&parser2) {
+ static  constexpr auto operator>(P1 &&parser1, P2 &&parser2) {
   return combine(std::forward<P1>(parser1), std::forward<P2>(parser2),
                  [](auto &&left, auto) { return left; });
 }
 
 template <typename P1, typename P2>
-constexpr auto operator<(P1 &&parser1, P2 &&parser2) {
+ static  constexpr auto operator<(P1 &&parser1, P2 &&parser2) {
   return combine(std::forward<P1>(parser1), std::forward<P2>(parser2),
                  [](auto, auto &&right) { return right; });
 }
-
+using parser=parser_input<std::string_view>;
 //};
 } // namespace viole
