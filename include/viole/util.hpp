@@ -321,6 +321,11 @@ template <typename T> auto type_to_string() -> std::string {
 template <typename T>
 concept type_pack_template = requires(T) { typename T::current; };
 template <typename T>
+concept type_pack_empty_template = requires(T) { typename T::empty; };
+template <typename T>
+concept type_pack_orempty_template =
+    type_pack_empty_template<T> || type_pack_template<T>;
+template <typename T>
 concept type_pack_nextable_template =
     requires(T) { typename T::next; } && type_pack_template<T>;
 
@@ -338,7 +343,11 @@ template <typename Type> struct type_pack<Type> {
   using end = std::true_type;
   template <typename Add> using add = type_pack<Type, Add>;
 };
-
+template <> struct type_pack<void> {
+  using empty = std::true_type;
+  template <typename Add> using add = type_pack<Add>;
+};
+using empty_pack = type_pack<void>;
 template <typename T, typename... Args>
 concept constructable_template = requires(T, Args... args) { T{args...}; };
 template <typename S, type_pack_template Pack, typename... T>
@@ -364,5 +373,18 @@ struct combine_pack<A, B> {
   using type = combine_pack<typename A::template add<typename B::current>,
                             typename B::next>::type;
 };
-template <bool opt, typename Opt1, typename Opt2> struct swicth_type {};
+template <bool opt, typename True, typename Falee> struct switch_type {};
+template <typename Opt1, typename Opt2> struct switch_type<true, Opt1, Opt2> {
+  using type = Opt1::type;
+};
+template <typename Opt1, typename Opt2> struct switch_type<false, Opt1, Opt2> {
+  using type = Opt2::type;
+};
+template <bool opt, typename True, typename Falee> struct switch_type2 {};
+template <typename Opt1, typename Opt2> struct switch_type2<true, Opt1, Opt2> {
+  using type = Opt1::type;
+};
+template <typename Opt1, typename Opt2> struct switch_type2<false, Opt1, Opt2> {
+  using type = Opt2;
+};
 } // namespace viole
