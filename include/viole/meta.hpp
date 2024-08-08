@@ -1,4 +1,6 @@
 #pragma once
+#include "viole/templates.hpp"
+#include "viole/util.hpp"
 #include <optional>
 #include <sstream>
 #include <string>
@@ -6,31 +8,47 @@
 #include <typeinfo>
 #include <vector>
 namespace viole {
-struct type_mate {
-  std::vector<type_mate> contexts;
+struct type_meta {
+  std::vector<type_meta> contexts;
   const std::type_info &type;
 };
-template <typename Type> struct type_builder {
+template <typename Type> struct basic_type_builder {
   template <typename T>
-  static auto build(type_mate &mate, auto &&...args) -> std::optional<Type> {
+  static auto build(type_meta &meta, auto &&...args) -> std::optional<Type> {
     if constexpr ((requires { T{args..., Type()}; })) {
-      mate.contexts.push_back({{}, typeid(Type)});
+      meta.contexts.push_back({{}, typeid(Type)});
       return Type();
     }
     return std::nullopt;
   }
 };
 
-template <typename T, typename... TypeBuilders> struct type_mate_builder {
-  type_mate mate;
-  auto get(auto &&...args) -> type_mate {
-    loop(args...);
-    return mate;
+template <typename Type> struct detail_type_builder {
+  static type_meta detail_type;
+  template <typename T>
+  static auto build(type_meta &meta, auto &&...args) -> std::optional<Type> {
+    if constexpr ((requires { T{args..., Type()}; })) {
+      meta.contexts.push_back(detail_type);
+      return Type();
+    }
+    return std::nullopt;
   }
-  template <size_t I = 0> auto loop(auto &&...args) -> void {
+};
+
+template <typename T, typename... TypeBuilders> struct type_meta_builder {
+  static auto get() -> type_meta {
+    type_meta_builder<T, TypeBuilders...> builder{};
+    return builder.get_obj();
+  }
+  type_meta meta = {{}, typeid(T)};
+  auto get_obj(auto &&...args) -> type_meta {
+    loop(args...);
+    return meta;
+  }
+  auto loop(auto &&...args) -> void {
     (
         [&]() {
-          auto opt = TypeBuilders::template build<T>(mate, args...);
+          auto opt = TypeBuilders::template build<T>(meta, args...);
           if (opt.has_value()) {
             if constexpr ((requires { T{args..., *opt}; })) {
               loop(args..., *opt);
@@ -41,6 +59,48 @@ template <typename T, typename... TypeBuilders> struct type_mate_builder {
         ...);
   }
 };
+using default_type_pack =
+    type_pack<basic_type_builder<int>, basic_type_builder<double>,
+              basic_type_builder<std::string>, basic_type_builder<char>>;
+TEMPLATE_FIT(default_type_pack, type_pack_template);
+template <typename T, type_pack_template Pack> struct fold_meta_type_builder {
+  template <typename Current = Pack, typename... Args>
+  static auto get() -> type_meta {
+    if constexpr (requires { typename Current::next; }) {
+      return get<typename Current::next, Args..., typename Current::current>();
+    } else {
+      return type_meta_builder<T, Args...>::get();
+    }
+  }
+};
+template <typename T, type_pack_template Pack>
+auto type_meta_to_string(
+    int depth = 0,
+    type_meta meta = fold_meta_type_builder<T, Pack>::get()) -> std::string {
+  std::stringstream stream;
+
+  auto indent = [depth, &stream] {
+    for (int i = 0; i < depth; ++i) {
+      stream << "    ";
+    }
+  };
+  indent();
+  stream << abi_type_info_to_string(meta.type);
+  if (!meta.contexts.empty()) {
+    stream << ":{" << std::endl;
+    for (auto child : meta.contexts) {
+      stream << type_meta_to_string<T, Pack>(depth + 1, child);
+    }
+    stream << "}" << (depth == 0 ? "" : ",") << std::endl;
+  } else {
+    stream << "," << std::endl;
+  }
+  return stream.str();
+}
+
+template <typename T>
+concept meta_object_template =
+    requires(T) { typename std::decay_t<T>::meta_mark; };
 #define GET_NTH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13,    \
                     _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24,     \
                     _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35,     \
@@ -57,11 +117,14 @@ template <typename T, typename... TypeBuilders> struct type_mate_builder {
               1)
 #define DEFINE_STRUCT(st, ...)                                                 \
   struct st {                                                                  \
-    using mate_mark = std::true_type;                                          \
+    using meta_mark = std::true_type;                                          \
     template <typename, size_t> struct FIELD;                                  \
     static constexpr size_t _field_count_ = GET_ARG_COUNT(__VA_ARGS__);        \
+    static constexpr const char *_struct_name = #st;                           \
     PASTE(FOR_EACH_, GET_ARG_COUNT(__VA_ARGS__))(FIELD_EACH, 0, __VA_ARGS__)   \
-  };
+  };                                                                           \
+  TEMPLATE_FIT(st, ::viole::meta_object_template);
+
 #define FIELD_EACH(i, arg)                                                     \
   PAIR(arg);                                                                   \
   template <typename T> struct FIELD<T, i> {                                   \
@@ -106,24 +169,24 @@ template <typename T, typename... TypeBuilders> struct type_mate_builder {
   func(i, arg);                                                                \
   FOR_EACH_8(func, i + 1, __VA_ARGS__)
 //...
-template <typename T>
-concept mate_object_template = requires(T t) { T::mate_mark; };
-template <typename T, typename F, size_t... Is>
-inline constexpr void mate_obj_for_each(T &&obj, F &&f,
-                                        std::index_sequence<Is...>) {
+
+template <meta_object_template T, typename F, size_t... Is>
+inline constexpr void
+meta_obj_for_each(T &&obj, F &&func,
+                  std::index_sequence<Is...> index_sequence) {
   using TDECAY = std::decay_t<T>;
-  (void(f(typename TDECAY::template FIELD<TDECAY, Is>(obj).name(),
-          typename TDECAY::template FIELD<TDECAY, Is>(obj).value())),
+  (void(func(typename TDECAY::template FIELD<TDECAY, Is>(obj).name(),
+             typename TDECAY::template FIELD<TDECAY, Is>(obj).value())),
    ...);
 }
 
-template <typename T, typename F>
-inline constexpr void mate_obj_for_each(T &&obj, F &&f) {
-  mate_obj_for_each(std::forward<T>(obj), std::forward<F>(f),
+template <meta_object_template T, typename F>
+inline constexpr void meta_obj_for_each(T &&obj, F &&func) {
+  meta_obj_for_each(std::forward<T>(obj), std::forward<F>(func),
                     std::make_index_sequence<std::decay_t<T>::_field_count_>{});
 }
 template <typename T>
-auto mate_obj_to_string(T &&obj, const char *field_name = "",
+auto meta_obj_to_string(T &&obj, const char *field_name = "",
                         int depth = 0) -> std::string {
   std::stringstream str;
   auto indent = [depth, &str] {
@@ -132,11 +195,11 @@ auto mate_obj_to_string(T &&obj, const char *field_name = "",
     }
   };
 
-  if constexpr (std::is_class_v<std::decay_t<T>>) {
+  if constexpr (meta_object_template<T>) {
     indent();
     str << field_name << (*field_name ? ": {" : "{") << std::endl;
-    mate_obj_for_each(obj, [depth, &str](auto &&field_name, auto &&value) {
-      str << mate_obj_to_string(value, field_name, depth + 1);
+    meta_obj_for_each(obj, [depth, &str](auto &&field_name, auto &&value) {
+      str << meta_obj_to_string(value, field_name, depth + 1);
     });
     indent();
     str << "}" << (depth == 0 ? "" : ",") << std::endl;

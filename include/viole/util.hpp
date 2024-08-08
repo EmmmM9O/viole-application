@@ -307,14 +307,62 @@ auto operator<<(std::ostream &stream,
 
 //
 
-auto abi_type_info_to_string(const std::type_info type) -> std::string; 
+auto abi_type_info_to_string(const std::type_info &type) -> std::string;
 template <typename Type> auto abi_type_to_string() -> std::string {
   return abi::__cxa_demangle(typeid(Type).name(), nullptr, nullptr, nullptr);
 }
-template <typename T> consteval auto type_to_string() -> std::string {
-  auto str = __PRETTY_FUNCTION__;
+template <typename T> auto type_to_string() -> std::string {
+  std::string str = __PRETTY_FUNCTION__;
   auto first = str.find("T = ");
   first += 4;
   return {str, first, str.length() - first - 1};
 }
+//
+template <typename T>
+concept type_pack_template = requires(T) { typename T::current; };
+template <typename T>
+concept type_pack_nextable_template =
+    requires(T) { typename T::next; } && type_pack_template<T>;
+
+template <typename T>
+concept type_pack_unnextable_template =
+    requires(T) { typename T::end; } && type_pack_template<T>;
+template <typename Type, typename... Types> struct type_pack {
+  using current = Type;
+  using next = type_pack<Types...>;
+  template <typename Add> using add = type_pack<Type, Types..., Add>;
+};
+
+template <typename Type> struct type_pack<Type> {
+  using current = Type;
+  using end = std::true_type;
+  template <typename Add> using add = type_pack<Type, Add>;
+};
+
+template <typename T, typename... Args>
+concept constructable_template = requires(T, Args... args) { T{args...}; };
+template <typename S, type_pack_template Pack, typename... T>
+struct pack_constructable {};
+template <typename S, type_pack_nextable_template Pack, typename... T>
+struct pack_constructable<S, Pack, T...> {
+  static const constexpr bool value =
+      pack_constructable<S, typename Pack::next, T...,
+                         typename Pack::current>::value;
+};
+template <typename S, type_pack_unnextable_template Pack, typename... T>
+struct pack_constructable<S, Pack, T...> {
+  static const constexpr bool value =
+      constructable_template<S, T..., typename Pack::current>;
+};
+template <type_pack_template A, type_pack_template B> struct combine_pack {};
+template <type_pack_template A, type_pack_unnextable_template B>
+struct combine_pack<A, B> {
+  using type = A::template add<typename B::current>;
+};
+template <type_pack_template A, type_pack_nextable_template B>
+struct combine_pack<A, B> {
+  using type = combine_pack<typename A::template add<typename B::current>,
+                            typename B::next>::type;
+};
+template <bool opt, typename Opt1, typename Opt2> struct swicth_type {};
 } // namespace viole

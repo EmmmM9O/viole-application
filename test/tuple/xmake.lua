@@ -1,4 +1,4 @@
-target("test-mate")
+target("test-tuple")
 set_kind("binary")
 add_cxflags("-Wall", "-stdlib=libc++", "-std=c++23", "-fplugin=$(projectdir)/plugin/dist/libviole-plugin.so")
 add_ldflags("-stdlib=libc++")
