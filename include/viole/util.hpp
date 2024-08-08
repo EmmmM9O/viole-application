@@ -387,4 +387,11 @@ template <typename Opt1, typename Opt2> struct switch_type2<true, Opt1, Opt2> {
 template <typename Opt1, typename Opt2> struct switch_type2<false, Opt1, Opt2> {
   using type = Opt2;
 };
+template <bool opt, typename True, typename Falee> struct switch_type3 {};
+template <typename Opt1, typename Opt2> struct switch_type3<true, Opt1, Opt2> {
+  using type = Opt1;
+};
+template <typename Opt1, typename Opt2> struct switch_type3<false, Opt1, Opt2> {
+  using type = Opt2;
+};
 } // namespace viole
