@@ -4,9 +4,9 @@
 
 DEFINE_STRUCT(test_meta_obj, (int)p1, (int)p2, (double)p3)
 test_meta_obj bas = {5, 6, 0.3};
-struct test_type_meta{
-	int a1,a2;
-	std::string test;
+struct test_type_meta {
+  int a1, a2;
+  std::string test;
 };
 auto main() -> int {
   std::cout

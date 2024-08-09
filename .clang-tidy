@@ -1,4 +1,4 @@
-Checks: '*,-llvmlibc-*,-cppcoreguidelines-*,-fuchsia-*,-readability-convert-member-functions-to-static,modernize-use-trailing-return-type,-altera-unroll-loops,-readability-magic-numbers,-altera-struct-pack-align:'
+Checks: '*,-llvmlibc-*,-cppcoreguidelines-*,-fuchsia-*,-readability-convert-member-functions-to-static,modernize-use-trailing-return-type,-altera-unroll-loops,-readability-magic-numbers,-altera-struct-pack-align,-google-explicit-constructor,-misc-non-private-member-variables-in-classes,-cert-err58-cpp,-hicpp-explicit-conversions'
 HeaderFilterRegex: '.*'
 CheckOptions:
   - key:             readability-identifier-naming.ClassCase

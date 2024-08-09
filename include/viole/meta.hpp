@@ -135,9 +135,10 @@ concept meta_object_template =
       return STRING(STRIP(arg));                                               \
     }                                                                          \
   }
-#define PAIR(x) PARE x // PAIR((double) x) => PARE(double) x => double x
+// PAIR((double) x NECESSARY)
+#define PAIR(x) PARE x // PAIR((double) x) => PARE(double) x => double xx
 #define PARE(...) __VA_ARGS__
-#define STRIP(x) EAT x // STRIP((double) x) => EAT(double) x => x
+#define STRIP(x) EAT x // STRIP((double) x) => EAT(double) x =>  x
 #define EAT(...)
 #define STRING(x) STR(x)
 #define STR(x) #x
@@ -168,6 +169,22 @@ concept meta_object_template =
 #define FOR_EACH_9(func, i, arg, ...)                                          \
   func(i, arg);                                                                \
   FOR_EACH_8(func, i + 1, __VA_ARGS__)
+#define FOR_EACH_10(func, i, arg, ...)                                         \
+  func(i, arg);                                                                \
+  FOR_EACH_9(func, i + 1, __VA_ARGS__)
+#define FOR_EACH_11(func, i, arg, ...)                                         \
+  func(i, arg);                                                                \
+  FOR_EACH_10(func, i + 1, __VA_ARGS__)
+#define FOR_EACH_12(func, i, arg, ...)                                         \
+  func(i, arg);                                                                \
+  FOR_EACH_11(func, i + 1, __VA_ARGS__)
+#define FOR_EACH_13(func, i, arg, ...)                                         \
+  func(i, arg);                                                                \
+  FOR_EACH_12(func, i + 1, __VA_ARGS__)
+#define FOR_EACH_13(func, i, arg, ...)                                         \
+  func(i, arg);                                                                \
+  FOR_EACH_12(func, i + 1, __VA_ARGS__)
+
 //...
 
 template <meta_object_template T, typename F, size_t... Is>
