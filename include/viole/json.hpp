@@ -1,5 +1,6 @@
 #pragma once
 #include "viole/meta.hpp"
+#include "viole/parser.hpp"
 #include "viole/util.hpp"
 #include <array>
 #include <iostream>
@@ -74,8 +75,7 @@ struct json_writer<std::map<std::string, T>> {
 template <typename T>
 auto obj_to_string_json(T &&obj, bool pretty, const char *field_name = "",
                         int depth = 0) {
-  // static_assert(!json_write_able_template<std::decay_t<T>>,
-  //              "un json write able");
+
   std::stringstream str;
   auto indent = [depth, &str, pretty] {
     if (pretty) {
@@ -128,4 +128,5 @@ template <meta_object_template T> struct json_writer<T> {
     return obj_to_json(obj, false);
   }
 };
+extern auto json_parser_func = parser::one_of("{[");
 } // namespace viole
